@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aether Sandbox Playground</title>
+<style>
+  :root { --bg:#06080f; --panel:#0e1424; --line:#1e2c47; --cyan:#00e5ff; --purple:#b388ff; --ok:#00e676; --bad:#ff5252; --text:#e7f0ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:radial-gradient(1000px 500px at 15% -10%, #13233d 0%, var(--bg) 60%); color:var(--text);
+         font-family:'Segoe UI', Roboto, 'Noto Sans Thai', sans-serif; min-height:100vh; }
+  header { padding:18px 24px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 6px; font-size:19px; letter-spacing:.4px; }
+  .muted { color:#8fa6c4; font-size:13px; }
+  main { padding:20px 24px 60px; display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+  .card { background:linear-gradient(180deg,rgba(20,30,52,.88),rgba(10,14,26,.92)); border:1px solid var(--line);
+          border-radius:14px; padding:16px 18px; }
+  .card h2 { margin:0 0 6px; font-size:13px; letter-spacing:1.2px; text-transform:uppercase; color:var(--cyan); }
+  .card p.desc { margin:2px 0 12px; font-size:12.5px; color:#8fa6c4; }
+  textarea { width:100%; min-height:150px; background:#070b15; color:var(--text); border:1px solid var(--line);
+             border-radius:10px; padding:11px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size:13px; resize:vertical; }
+  input[type=text], input[type=number], select { width:100%; background:#070b15; color:var(--text); border:1px solid var(--line);
+             border-radius:10px; padding:10px; font-size:13.5px; }
+  .row { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .row > * { flex:1; min-width:120px; }
+  button { padding:11px 16px; border-radius:10px; border:1px solid rgba(0,229,255,.35); background:rgba(0,229,255,.14);
+           color:var(--cyan); cursor:pointer; font-weight:600; font-size:13.5px; }
+  button:hover { background:rgba(0,229,255,.24); }
+  button.ghost { border-color:var(--line); background:transparent; color:#9fb4d4; font-weight:500; }
+  button:disabled { opacity:.5; cursor:progress; }
+  pre { background:#05080f; border:1px solid var(--line); border-radius:10px; padding:12px; overflow:auto;
+        max-height:280px; font-size:12.5px; margin:12px 0 0; white-space:pre-wrap; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11.5px; border:1px solid var(--line); color:#9fb4d4; }
+  .verdict-ok { color:var(--ok); border-color:rgba(0,230,118,.4); }
+  .verdict-blocked { color:var(--bad); border-color:rgba(255,82,82,.4); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { font-size:11.5px; padding:3px 8px; border-radius:8px; background:rgba(0,229,255,.08); border:1px solid var(--line); cursor:pointer; }
+  .chip:hover { background:rgba(0,229,255,.18); }
+  .blocked-chip { background:rgba(255,82,82,.08); cursor:default; }
+  .note { font-size:12px; color:#8fa6c4; margin-top:10px; line-height:1.55; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Aether Sandbox Playground</h1>
+  <div class="muted" id="guardline">กำลังโหลดข้อมูลการ์ด...</div>
+</header>
+
+<main>
+  <!-- 1. Python -->
+  <section class="card">
+    <h2>1 · Python Sandbox</h2>
+    <p class="desc">ตรวจ AST ก่อนรัน → รันใน process แยก (<code>python -I</code>) พร้อมจำกัดเวลา/หน่วยความจำ และ<b>ตัด API key ออกจาก env</b></p>
+    <div class="chips" id="samples"></div>
+    <textarea id="pycode" spellcheck="false">def fib(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
+
+print([fib(i) for i in range(12)])</textarea>
+    <div class="row">
+      <button id="runPy">▶ รันโค้ด</button>
+      <button class="ghost" id="clearPy">ล้าง</button>
+    </div>
+    <pre id="pyout">ผลลัพธ์จะแสดงที่นี่...</pre>
+  </section>
+
+  <!-- 2. Shell -->
+  <section class="card">
+    <h2>2 · Safe Command</h2>
+    <p class="desc">ใช้ <code>SafeScriptExecutor</code> ของโปรเจกต์ — มี allow-list / deny-list / timeout เป็นของตัวเอง</p>
+    <div class="row">
+      <select id="cmdSelect"></select>
+    </div>
+    <div class="row">
+      <input type="text" id="cmdArgs" placeholder="arguments เช่น --version (เว้นว่างได้)" />
+      <button id="runSh" style="flex:0 0 auto">▶ รัน</button>
+    </div>
+    <pre id="shout">เลือกคำสั่งแล้วกดรัน...</pre>
+    <div class="note" id="cmdNote"></div>
+  </section>
+
+  <!-- 3. Plugin -->
+  <section class="card">
+    <h2>3 · Plugin Sandbox</h2>
+    <p class="desc">โหลดปลั๊กอินใน <b>process แยก</b> + timeout 10 วิ — แครช/แฮงค์ก็ไม่ลากเซิร์ฟเวอร์ล้ม</p>
+    <div class="row">
+      <select id="pluginSelect"></select>
+      <input type="number" id="pluginCount" value="10" min="1" max="40" title="count (fibonacci)" />
+    </div>
+    <div class="row">
+      <input type="text" id="pluginText" value="hello aether hello sandbox" placeholder="text (สำหรับ text-stats)" />
+    </div>
+    <div class="row">
+      <button id="runPlugin">▶ รันปลั๊กอิน</button>
+    </div>
+    <pre id="pluginout">ผลลัพธ์จะแสดงที่นี่...</pre>
+  </section>
+
+  <!-- 4. What is blocked -->
+  <section class="card">
+    <h2>4 · Guard ปฏิเสธอะไรบ้าง</h2>
+    <p class="desc">โมดูลที่ import ได้ (allow-list)</p>
+    <div class="chips" id="allowed"></div>
+    <p class="desc" style="margin-top:14px">สิ่งที่ถูกบล็อก</p>
+    <div class="chips" id="blocked"></div>
+    <div class="note">ลองพิมพ์ <code>import os</code> หรือ <code>().__class__</code> ในช่องที่ 1 ดูสิครับ — จะถูกปฏิเสธก่อนรันจริง</div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const pretty = (obj) => JSON.stringify(obj, null, 2);
+
+async function post(url, body) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
+
+function show(el, data, okGetter) {
+  const ok = okGetter(data);
+  const tag = ok ? '<span class="tag verdict-ok">ผ่าน / OK</span>'
+                 : '<span class="tag verdict-blocked">ถูกปฏิเสธ / BLOCKED</span>';
+  el.innerHTML = tag + "\n" + pretty(data).replace(/[<>]/g, '');
+}
+
+async function loadInfo() {
+  const info = await (await fetch('/api/info')).json();
+  $('guardline').textContent = info.guard + ' · ' + info.limits;
+
+  $('allowed').innerHTML = info.allowed_modules.map(m => `<span class="chip">${m}</span>`).join('');
+  $('blocked').innerHTML = info.blocked.map(m => `<span class="chip blocked-chip">${m}</span>`).join('');
+
+  $('samples').innerHTML = Object.keys(info.samples)
+    .map(k => `<span class="chip" data-sample="${k}">${k}</span>`).join('');
+  document.querySelectorAll('.chip[data-sample]').forEach(chip => {
+    chip.addEventListener('click', () => { $('pycode').value = info.samples[chip.dataset.sample]; });
+  });
+  window.__samples = info.samples;
+
+  const cmds = await (await fetch('/api/shell/commands')).json();
+  $('cmdSelect').innerHTML = cmds.allowed.map(c => `<option>${c}</option>`).join('');
+  $('cmdNote').textContent = `อนุญาต ${cmds.allowed.length} คำสั่ง · บล็อก ${cmds.blocked.length} คำสั่ง (${cmds.blocked.slice(0, 8).join(', ')} ...)`;
+
+  const pl = await (await fetch('/api/plugin/list')).json();
+  $('pluginSelect').innerHTML = pl.plugins.map(p => `<option>${p}</option>`).join('');
+}
+
+$('runPy').addEventListener('click', async () => {
+  $('runPy').disabled = true;
+  const data = await post('/api/python', { code: $('pycode').value, timeout: 5 });
+  show($('pyout'), data, d => d.ok);
+  $('runPy').disabled = false;
+});
+$('clearPy').addEventListener('click', () => { $('pycode').value = ''; });
+
+$('runSh').addEventListener('click', async () => {
+  const args = $('cmdArgs').value.trim() ? $('cmdArgs').value.trim().split(/\s+/) : [];
+  const data = await post('/api/shell', { command: $('cmdSelect').value, args });
+  show($('shout'), data, d => d.ok);
+});
+
+$('runPlugin').addEventListener('click', async () => {
+  const plugin = $('pluginSelect').value;
+  const params = plugin === 'fibonacci'
+    ? { count: Number($('pluginCount').value) || 10 }
+    : { text: $('pluginText').value };
+  const data = await post('/api/plugin', { plugin, params });
+  show($('pluginout'), data, d => d.status === 'success');
+});
+
+loadInfo();
+</script>
+</body>
+</html>
