@@ -99,3 +99,7 @@ htmlcov/
 *.mp3
 *.mp4
 temp_tts.*
+
+# ChatGPT app (Next.js) build artefacts
+chatgpt-app/.next/
+chatgpt-app/next-env.d.ts

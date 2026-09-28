@@ -54,6 +54,7 @@ ROUTER_MODULES = {
     "v3": "/api/v1/v3",
     "n8n": "/api/v1/n8n",
     "desktop": "/api/v1/desktop",
+    "sandbox": "/api/v1/sandbox",
 }
 
 # Modules that must never be loaded on a headless server (they need a display).
