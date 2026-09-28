@@ -3,7 +3,11 @@ Verification Engine
 Vision-based and rule-based verification system for workflow steps
 """
 import time
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass
 from enum import Enum

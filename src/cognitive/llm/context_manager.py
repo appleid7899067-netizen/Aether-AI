@@ -15,7 +15,7 @@ class ContextManager:
         self.max_tokens = max_tokens
         self.conversation_history: deque = deque(maxlen=self.max_messages)
         self.token_count = 0
-        self.encoder = tiktoken.get_encoding("cl100k_base")
+        self.encoder = self._load_encoder()
         
         # Initialize Long-Term Memory
         from src.cognitive.memory.conversation_history import ConversationHistory
@@ -40,6 +40,21 @@ class ContextManager:
             logger.info("Skipping DB load for test mode")
 
         logger.info(f"Context Manager initialized: session={self.session_id}, max_messages={self.max_messages}, max_tokens={self.max_tokens}")
+
+    @staticmethod
+    def _load_encoder():
+        """Load the cl100k_base tokenizer, tolerating an offline/sandboxed host.
+
+        ``tiktoken`` downloads its BPE file the first time it is used; when that
+        download is blocked (corporate proxy, air-gapped container, Render build
+        without egress) we fall back to a cheap character based estimate so that
+        chat keeps working.  ``None`` means "use the fallback".
+        """
+        try:
+            return tiktoken.get_encoding("cl100k_base")
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"tiktoken encoder unavailable ({exc}); using character estimate")
+            return None
 
     def add_message(self, role: str, content: str, metadata: Optional[Dict[str, Any]] = None):
         if role not in ["user", "assistant", "system"]:
@@ -107,6 +122,8 @@ class ContextManager:
 
     def count_tokens(self, text: str) -> int:
         try:
+            if self.encoder is None:
+                return max(1, len(text) // 4)  # ~4 characters per token
             return len(self.encoder.encode(text))
         except Exception as e:
             logger.error(f"Error counting tokens: {e}")

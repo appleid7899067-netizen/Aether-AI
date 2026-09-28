@@ -1,0 +1,81 @@
+# =============================================================================
+# Aether AI - SERVER / CLOUD requirements (Render, Railway, Fly.io, Docker)
+# =============================================================================
+# Headless set: no GUI stack (pyautogui, PyQt6, pynput, pyaudio, openvino,
+# torch, ultralytics, paddleocr ...).  The API boots without them and disables
+# only the desktop-control routes at runtime.
+#
+# Install:  pip install -r requirements-server.txt
+# Start:    uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+#
+# Versions below were verified by installing this file in a clean virtualenv
+# with Python 3.11.
+# =============================================================================
+
+# --- Web framework -----------------------------------------------------------
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.20
+pydantic==2.10.3
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
+loguru>=0.7.3
+nest-asyncio>=1.6.0
+
+# --- HTTP / async ------------------------------------------------------------
+httpx>=0.28.1
+aiohttp>=3.11.11
+requests>=2.32.3
+aiofiles>=24.1.0
+tenacity>=9.0.0
+circuitbreaker>=2.0.0
+
+# --- Data / storage ----------------------------------------------------------
+numpy>=2.2.1
+pillow>=11.0.0
+sqlalchemy>=2.0.36
+redis>=5.2.1
+chromadb>=0.5.23          # long-term memory (falls back to ONNX embeddings)
+psutil>=6.1.1
+joblib>=1.4.2
+cryptography>=44.0.0
+
+# --- AI providers ------------------------------------------------------------
+openai>=1.58.1
+anthropic>=0.42.0
+google-generativeai>=0.8.3
+groq>=0.14.0
+tiktoken>=0.8.0
+tavily-python>=0.5.0
+
+# --- Voice (synthesis works headless, microphone capture does not) -----------
+edge-tts>=7.2.0
+pyttsx3>=2.98
+soundfile>=0.13.0
+webrtcvad-wheels>=2.0.10
+pvporcupine>=3.0.3        # wake word (optional, needs PORCUPINE_API_KEY at runtime)
+
+# --- Web scraping / automation ----------------------------------------------
+beautifulsoup4>=4.12.3
+lxml>=5.3.0
+html5lib>=1.1
+selenium>=4.27.1
+playwright>=1.49.1
+pyperclip>=1.9.0
+schedule>=1.2.2
+watchdog>=6.0.0
+mss>=10.0.0
+
+# --- Documents / vision (CPU only, no GUI needed) ----------------------------
+opencv-python-headless>=4.10.0.84
+pytesseract>=0.3.13
+ImageHash>=4.3.1
+PyPDF2>=3.0.1
+pdfplumber>=0.11.4
+python-docx>=1.1.2
+python-pptx>=1.0.2
+langdetect>=1.0.9
+dnspython>=2.7.0
+
+# --- Monitoring --------------------------------------------------------------
+prometheus-client>=0.21.0

@@ -2,7 +2,11 @@
 Window Management for Multi-Application Workflows
 Handles window positioning, focus, and relative coordinate management
 """
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 import time
 from typing import Optional, Tuple, Dict, Any, List
 from dataclasses import dataclass

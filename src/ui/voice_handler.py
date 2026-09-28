@@ -1,6 +1,11 @@
 import io
 import requests
-import sounddevice as sd
+from src.utils.optional_import import optional_import
+
+sounddevice = optional_import(
+    "sounddevice", hint="Audio streaming needs the PortAudio system library."
+)
+sd = sounddevice  # backwards-compatible alias for the original `import sounddevice as sd`
 import soundfile as sf
 import numpy as np
 from pathlib import Path

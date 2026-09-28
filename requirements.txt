@@ -1,3 +1,12 @@
+# =============================================================================
+# Aether AI - FULL / DESKTOP requirements (Windows, macOS or a Linux desktop)
+# -----------------------------------------------------------------------------
+# Includes the GUI/audio stack (pyautogui, PyQt6, pynput, pyaudio, torch,
+# openvino, paddleocr, ...) used by the desktop assistant.
+#
+# For a headless server / container / Render use instead:
+#     pip install -r requirements-server.txt
+# =============================================================================
 fastapi==0.115.0
 uvicorn[standard]==0.32.0
 chromadb==0.5.23
@@ -5,7 +14,6 @@ sentence-transformers==3.3.1
 pyautogui==0.9.54
 psutil==6.1.1
 python-dotenv==1.0.1
-<<<<<<< Updated upstream
 sqlalchemy==2.0.36
 pydantic==2.10.3
 pydantic-settings==2.7.0
@@ -17,22 +25,6 @@ aiohttp==3.11.11
 python-multipart==0.0.20
 pillow==11.0.0
 opencv-python==4.10.0.84
-=======
-sqlalchemy==2.0.25
-pydantic==2.6.0
-pydantic-settings==2.1.0
-numpy==1.26.3
-scipy==1.12.0
-pandas==2.2.0
-requests==2.31.0
-aiohttp==3.9.3
-python-multipart==0.0.6
-pillow==10.2.0
-opencv-python==4.9.0.80
-ultralytics==8.3.0  # YOLO v8 for object detection - IRONCLAW
-openvino==2024.5.0  # Intel NPU acceleration - IRONCLAW
-openvino-tokenizers==2024.5.0  # For NPU-accelerated models
->>>>>>> Stashed changes
 
 # OpenClaw - Web Scraping & Automation
 beautifulsoup4==4.12.3
@@ -60,19 +52,11 @@ pywin32==306; sys_platform == 'win32'
 pywinauto==0.6.8; sys_platform == 'win32'
 
 # AI Provider SDKs
-<<<<<<< Updated upstream
 openai==1.58.1
 anthropic==0.42.0
 google-generativeai==0.8.3
 groq==0.14.0
-litellm==1.54.14
-=======
-openai>=1.50.0
-anthropic>=0.30.0
-google-generativeai==0.3.2
-groq>=1.0.0
-litellm==1.30.0
->>>>>>> Stashed changes
+litellm>=1.54.0  # NOTE: 1.54.14 does not exist on PyPI
 
 # Security & Encryption
 cryptography==44.0.0
@@ -99,28 +83,18 @@ python-pptx==1.0.2
 # Multi-Language Support
 langdetect==1.0.9
 
-<<<<<<< Updated upstream
 # Screen Understanding & OCR
 pytesseract==0.3.13
 easyocr==1.7.2
 imagehash==4.3.1
-=======
-# Screen Understanding & OCR - IRONCLAW ENHANCEMENT
-pytesseract==0.3.10
-easyocr==1.7.0
-paddleocr==2.8.1  # Better handwriting & CJK support
-paddlepaddle==2.6.0; sys_platform != 'darwin'  # PaddleOCR backend
-paddlepaddle-macos==2.6.0; sys_platform == 'darwin'  # macOS support
->>>>>>> Stashed changes
 
 # Discord Bot Integration (Mekio-style)
 
 # Natural Voice (Free)
-edge-tts==7.1.1
+edge-tts>=7.2.0  # NOTE: 7.1.1 does not exist on PyPI
 nest-asyncio==1.6.0
 
 # v0.9.0 Dependencies - Screen Monitoring & PC Control
-<<<<<<< Updated upstream
 mss==10.0.0
 pynput==1.7.7
 schedule==1.2.2

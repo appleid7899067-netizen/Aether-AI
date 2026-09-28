@@ -86,13 +86,39 @@ class ScriptExecutor:
             )
         
         try:
-            return self._execute_subprocess(script_path, args, env_vars, timeout, output_callback)
+            return self._execute_subprocess(
+                self._build_command(script_path, args), [], env_vars, timeout, output_callback
+            )
         except Exception as e:
             logger.error(f"Script execution failed: {e}")
             return ScriptExecutionResult(
                 success=False,
                 error=str(e)
             )
+
+    @staticmethod
+    def _build_command(script_path: Path, args: List[str]):
+        """Return the argv that runs ``script_path``.
+
+        Scripts are launched through their interpreter instead of being executed
+        directly - a plain ``.py``/``.sh`` file has no execute bit and no shebang
+        when Aether writes it, which used to fail with "Permission denied".
+        """
+        suffix = script_path.suffix.lower()
+        if suffix == ".py":
+            return [sys.executable or "python", str(script_path), *args]
+        if suffix == ".sh":
+            if os.name == "nt":
+                raise ValueError("Shell scripts (.sh) are not supported on Windows")
+            return ["bash", str(script_path), *args]
+        if suffix == ".ps1":
+            shell = "powershell" if os.name == "nt" else "pwsh"
+            return [shell, "-NoProfile", "-File", str(script_path), *args]
+        if suffix in (".bat", ".cmd"):
+            if os.name != "nt":
+                raise ValueError(f"{suffix} scripts are only supported on Windows")
+            return ["cmd.exe", "/c", str(script_path), *args]
+        return [str(script_path), *args]
     
     def execute_command(
         self,

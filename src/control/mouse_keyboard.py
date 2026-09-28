@@ -1,6 +1,12 @@
 import asyncio
 from typing import Optional, Tuple
-from pynput import mouse, keyboard
+from src.utils.optional_import import optional_import
+
+_pynput = optional_import(
+    "pynput", hint="Keyboard and mouse control needs a graphical session (X11 / Windows / macOS)."
+)
+mouse = _pynput.mouse  # resolved lazily so a headless server can still import this module
+keyboard = _pynput.keyboard
 
 from src.control.models import MouseButton, ActionType, ControlAction, ActionResult
 from src.utils.logger import get_logger
@@ -11,8 +17,18 @@ logger = get_logger(__name__)
 class MouseKeyboardController:
     
     def __init__(self):
-        self.mouse_controller = mouse.Controller()
-        self.keyboard_controller = keyboard.Controller()
+        # pynput needs a graphical session; when it is missing (headless server)
+        # the controllers stay ``None`` and every action returns a clear error
+        # instead of crashing on import.
+        self.available = True
+        try:
+            self.mouse_controller = mouse.Controller()
+            self.keyboard_controller = keyboard.Controller()
+        except Exception as exc:  # noqa: BLE001
+            self.available = False
+            self.mouse_controller = None
+            self.keyboard_controller = None
+            logger.warning(f"Keyboard/mouse control unavailable ({exc})")
         self.screen_bounds = self._get_screen_bounds()
     
     def _get_screen_bounds(self) -> Tuple[int, int]:

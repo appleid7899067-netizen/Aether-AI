@@ -6,7 +6,11 @@ Webcam-based gesture detection for touchless interaction
 import cv2
 import numpy as np
 from typing import Optional, List, Dict, Tuple, Callable
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 from collections import deque
 import time
 

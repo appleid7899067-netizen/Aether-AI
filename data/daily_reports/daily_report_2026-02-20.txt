@@ -1,21 +1,9 @@
 📊 Daily Report - 2026-02-20
 ============================================================
 
-<<<<<<< Updated upstream
 ⏱️ Total Time: 0h 0m
 📝 Total Activities: 0
 🎯 Productivity Score: 0.0/100
-=======
-⏱️ Total Time: 1h 0m
-📝 Total Activities: 1
-🎯 Productivity Score: 31.0/100
-
-📋 Activities Breakdown:
-  • bug_bounty: 1 activities, 60m
-
-🏆 Achievements:
-  ✓ 100% success rate on all 1 activities
->>>>>>> Stashed changes
 
 💰 Earnings Summary:
   • Total Earned: $0.00
@@ -23,14 +11,10 @@
   • Paid Reports: 0
 
 💡 Suggestions for Tomorrow:
-<<<<<<< Updated upstream
   → Start logging your activities to get better insights
   → Try bug bounty hunting or YouTube content creation
-=======
-  → Consider spending more time on productive activities (target: 2+ hours)
-  → Dedicate time to learning new skills
-  → Focus on monetizable activities like bug bounties
->>>>>>> Stashed changes
 
 ============================================================
 Keep up the great work! 🚀
+  → Start logging your activities to get better insights
+  → Try bug bounty hunting or YouTube content creation

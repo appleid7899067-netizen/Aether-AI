@@ -18,9 +18,29 @@ from src.config import settings
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/v1/chat", tags=["chat"])
 
+NO_PROVIDER_MESSAGE = (
+    "No AI provider is configured. Add at least one API key in the environment "
+    "(GROQ_API_KEY is free and fastest: https://console.groq.com/keys) and restart "
+    "the service. Check the current state with GET /api/v1/chat/providers."
+)
+
+
+def _ensure_provider_configured() -> None:
+    """Fail with a helpful 503 instead of a raw provider stack trace."""
+    try:
+        from src.cognitive.llm.model_router import router as model_router
+
+        if not model_router.get_available_providers():
+            raise HTTPException(status_code=503, detail=NO_PROVIDER_MESSAGE)
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(f"Provider check skipped: {exc}")
+
 
 @router.post("/", response_model=ChatResponse)
 async def chat(request: ChatRequest):
+    _ensure_provider_configured()
     try:
         task_type = TaskType(request.task_type.value)
         
@@ -135,6 +155,7 @@ class ConversationRequestBody(BaseModel):
 
 @router.post("/conversation")
 async def conversation(body: ConversationRequestBody):
+    _ensure_provider_configured()
     try:
         request = ConversationRequest(
             user_input=body.message,

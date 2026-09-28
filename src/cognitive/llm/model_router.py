@@ -205,3 +205,17 @@ class ModelRouter:
 
 
 router = ModelRouter()
+
+
+# Module level singleton accessor used by the security / bug-bounty modules.
+_ai_router = router
+
+
+async def get_ai_router() -> ModelRouter:
+    """Return the shared :class:`ModelRouter` instance."""
+    return _ai_router
+
+
+def get_model_router() -> ModelRouter:
+    """Synchronous accessor for the shared :class:`ModelRouter` instance."""
+    return _ai_router

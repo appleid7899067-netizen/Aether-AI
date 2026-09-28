@@ -1188,17 +1188,12 @@
     "latency_ms": 931.6673278808594
   },
   {
-<<<<<<< Updated upstream
     "timestamp": "2026-02-19T17:28:30.782271",
-=======
-    "timestamp": "2026-02-19T16:58:04.539173",
->>>>>>> Stashed changes
     "provider": "groq",
     "model": "llama-3.3-70b-versatile",
     "tokens_used": 85,
     "cost_usd": 5.865000000000001e-05,
     "task_type": "conversation",
-<<<<<<< Updated upstream
     "latency_ms": 1770.8303928375244
   },
   {
@@ -2658,17 +2653,5 @@
     "cost_usd": 0.0051129,
     "task_type": "fast",
     "latency_ms": 4932.857513427734
-=======
-    "latency_ms": 630.2914619445801
-  },
-  {
-    "timestamp": "2026-02-19T17:08:07.465582",
-    "provider": "fireworks",
-    "model": "accounts/fireworks/models/llama-v3p3-70b-instruct",
-    "tokens_used": 64,
-    "cost_usd": 5.76e-05,
-    "task_type": "conversation",
-    "latency_ms": 3461.70973777771
->>>>>>> Stashed changes
   }
 ]
