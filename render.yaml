@@ -9,6 +9,12 @@
 # testing, autonomous desktop actions) disable themselves at runtime; everything
 # else (chat, memory, voice synthesis, bug-bounty recon, monitoring, n8n ...) is
 # available.
+#
+# BRANCH: no `branch:` is set on purpose - Render then deploys every service
+# from the branch you pick when creating the Blueprint ("Render uses the
+# Blueprint's branch if the service uses the same repo").  So you can deploy the
+# current work straight from `arena/01a0e54b-aether-ai`, or from `main` once the
+# pull request is merged.
 # =============================================================================
 services:
   - type: web
@@ -16,9 +22,14 @@ services:
     runtime: python
     plan: free
     region: singapore
-    branch: main
     autoDeploy: true
     healthCheckPath: /health
+    buildFilter:
+      # Do not rebuild the API when only the ChatGPT app / other front-ends change
+      ignoredPaths:
+        - chatgpt-app/**
+        - ui-ts/**
+        - ui/**
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements-server.txt
@@ -58,6 +69,46 @@ services:
       - key: TAVILY_API_KEY        # optional, web search tool
         sync: false
       - key: PORCUPINE_API_KEY     # optional, wake word
+        sync: false
+
+  # ---------------------------------------------------------------------------
+  # ChatGPT app (MCP server + widget) - lets ChatGPT call the Aether tools above.
+  # Connect it in ChatGPT: Settings -> Connectors -> Advanced -> Developer mode
+  # -> Add custom connector -> https://<this-service>.onrender.com/mcp
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: aether-chatgpt-app
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: chatgpt-app
+    autoDeploy: true
+    healthCheckPath: /
+    buildCommand: npm install --no-audit --no-fund && npm run build
+    startCommand: npx next start -H 0.0.0.0
+    buildFilter:
+      ignoredPaths:
+        - src/**
+        - tools/**
+        - data/**
+        - ui-ts/**
+        - ui/**
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Where the MCP tools find Aether: the API service created above.
+      - key: AETHER_API_URL
+        fromService:
+          type: web
+          name: aether-ai-api
+          envVarKey: RENDER_EXTERNAL_URL
+      # Optional bearer token if you later protect the API with auth.
+      # - key: AETHER_API_TOKEN
+      #   sync: false
+      # Public URL of THIS app. Render sets RENDER_EXTERNAL_URL at build time, so
+      # normally you can leave this blank; fill it in if you attach a custom
+      # domain (then redeploy so the widget assets point at the new host).
+      - key: NEXT_PUBLIC_BASE_URL
         sync: false
 
 # -----------------------------------------------------------------------------

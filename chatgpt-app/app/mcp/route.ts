@@ -23,7 +23,7 @@ import {
   remember,
   runPython,
 } from "@/lib/aether";
-import { baseURL } from "@/lib/base-url";
+import { baseURL, internalBaseURL } from "@/lib/base-url";
 
 const WIDGET_URI = "ui://widget/aether-template.html";
 
@@ -56,8 +56,35 @@ const describeError = (error: unknown): string => {
   );
 };
 
+/**
+ * The widget HTML is the server-rendered page in this same deployment.
+ * Prefer loopback, fall back to the public URL, and never let a failure here
+ * break the whole MCP server - a plain fallback page is still usable.
+ */
+let cachedWidgetHtml: string | null = null;
+async function loadWidgetHtml(): Promise<string> {
+  if (process.env.NODE_ENV === "production" && cachedWidgetHtml) return cachedWidgetHtml;
+  for (const base of [internalBaseURL, baseURL]) {
+    try {
+      const response = await fetch(`${base}/`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(8000),
+      });
+      if (response.ok) {
+        cachedWidgetHtml = await response.text();
+        return cachedWidgetHtml;
+      }
+    } catch {
+      /* try the next base */
+    }
+  }
+  console.error(
+    `[aether-mcp] could not load the widget HTML from ${internalBaseURL} or ${baseURL}`
+  );
+  return "<!doctype html><html><body><p>Aether widget is starting up - retry in a moment.</p></body></html>";
+}
+
 const handler = createMcpHandler(async (server) => {
-  const html = await fetch(`${baseURL}/`).then((r) => r.text());
 
   // ------------------------------------------------------------------ widget
   server.registerResource(
@@ -74,7 +101,7 @@ const handler = createMcpHandler(async (server) => {
         {
           uri: uri.href,
           mimeType: "text/html+skybridge",
-          text: `<html>${html}</html>`,
+          text: `<html>${await loadWidgetHtml()}</html>`,
           _meta: widgetResourceMeta,
         },
       ],

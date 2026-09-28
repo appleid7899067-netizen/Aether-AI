@@ -52,6 +52,25 @@ ngrok http 3000
 
 รายละเอียดทั้งหมด (env, deploy, ไฟล์ในโปรเจกต์, ข้อควรระวัง) อยู่ใน [`chatgpt-app/README.md`](chatgpt-app/README.md)
 
+## ขึ้น Render (ไม่ต้องใช้ ngrok)
+
+`render.yaml` ที่ราก repo สร้างให้ **2 บริการในคลิกเดียว**
+
+| บริการ | ชนิด | หน้าที่ | URL |
+|---|---|---|---|
+| `aether-ai-api` | Python (free) | Aether API + dashboard | `https://aether-ai-api.onrender.com` |
+| `aether-chatgpt-app` | Node (free) | MCP + widget | `https://aether-chatgpt-app.onrender.com/mcp` |
+
+ขั้นตอน: <https://dashboard.render.com> → **New +** → **Blueprint** → เลือก repo `Aether-AI`
+→ เลือก branch (`arena/01a0e54b-aether-ai` = โค้ดล่าสุด หรือ `main` หลัง merge PR)
+→ ใส่ `GROQ_API_KEY` (หรือคีย์อื่น) ให้ `aether-ai-api` → **Apply**
+→ เสร็จแล้วเอาลิงก์ `.../mcp` ไปวางใน ChatGPT (Settings → Connectors → Developer mode → Add custom connector)
+
+* แอปจะได้รับ `AETHER_API_URL` จาก Render อัตโนมัติ (`fromService` → `RENDER_EXTERNAL_URL` ของ API)
+* `NEXT_PUBLIC_BASE_URL` ไม่ต้องใส่ก็ได้ เพราะ Render ส่ง `RENDER_EXTERNAL_URL` มาให้ตอน build
+  (ใส่เฉพาะเมื่อผูก custom domain แล้วต้อง redeploy)
+* แผนฟรีหลับหลัง 15 นาที → ครั้งแรกที่ ChatGPT เรียกจะตื่นช้า ~30-60 วิ
+
 ## ผลการทดสอบ (รันจริงในเครื่องนี้)
 
 | การทดสอบ | ผล |
@@ -68,6 +87,7 @@ ngrok http 3000
 | `run_python` (`while True`) | ✅ “Timed out after 2s (killed)” |
 | `ask_aether` | ⚠️ HTTP 503 เพราะ **Aether ยังไม่ได้ใส่ API key ของโมเดล** — แอปแจ้งข้อความถูกต้อง (ไม่ใช่ “เชื่อมต่อไม่ได้”) พอใส่ key แล้วจะตอบปกติ |
 | CORS `OPTIONS /mcp` | ✅ 204, `access-control-allow-origin: *` |
+| โหมด Render (`RENDER_EXTERNAL_URL=... PORT=10000`, `next build && next start`) | ✅ `/` 200, asset ชี้ `https://aether-chatgpt-app.onrender.com/_next/...`, `initialize` + `tools/call` + `resources/read` ทำงาน |
 | Playground :8100 หลัง refactor guard | ✅ GET / 200 (9030 B) เหมือนเดิม |
 
 ## ข้อควรรู้

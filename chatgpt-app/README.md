@@ -78,9 +78,32 @@ ngrok http 3000          # หรือ  cloudflared tunnel --url http://localho
 
 ## Deploy
 
+### Render (แนะนำ — มีให้ครบใน `../render.yaml`)
+
+`render.yaml` ที่ราก repo สร้าง 2 บริการพร้อมกัน: `aether-ai-api` (Python) และ `aether-chatgpt-app` (โฟลเดอร์นี้)
+
+> Dashboard → **New +** → **Blueprint** → เลือก repo → เลือก branch → ใส่ API key → **Apply**
+
+ค่าที่ตั้งให้อัตโนมัติ:
+
+| ตัวแปร | ที่มา |
+| --- | --- |
+| `AETHER_API_URL` | `fromService` → `RENDER_EXTERNAL_URL` ของ `aether-ai-api` |
+| `PORT` | Render ตั้งเอง (10000) — `next start` อ่านและผูก `0.0.0.0` ตาม `startCommand` |
+| `NEXT_PUBLIC_BASE_URL` | ไม่ต้องใส่ — โค้ดอ่าน `RENDER_EXTERNAL_URL` ตอน build ให้เอง (ใส่เมื่อใช้ custom domain เท่านั้น) |
+
+หลัง deploy: เอา `https://<ชื่อบริการ>.onrender.com/mcp` ไปใส่ใน ChatGPT → Settings → Connectors → Developer mode → Add custom connector
+
+### อื่น ๆ
+
 * **Vercel** — import โฟลเดอร์นี้ ตั้ง `AETHER_API_URL` (และ `NEXT_PUBLIC_BASE_URL` ถ้าต้องการตรึงโดเมน)
-* **Render / Docker / VPS** — มี `Dockerfile` ให้แล้ว; ตั้ง `AETHER_API_URL` + `NEXT_PUBLIC_BASE_URL`
-  (หรือปล่อยให้อ่าน `RENDER_EXTERNAL_URL` อัตโนมัติ) แล้วใช้ URL ของแอปเป็น `/mcp` ใน ChatGPT
+* **Docker / VPS** — มี `Dockerfile` ให้แล้ว; ตั้ง `AETHER_API_URL` แล้วใช้ URL ของแอปเป็น `/mcp`
+
+### ข้อควรรู้บนแผนฟรี
+
+* หลับหลังไม่มีคนใช้ 15 นาที → request แรกช้า ~30-60 วิ (ทั้งสองบริการ)
+* ไม่มี disk ถาวร → หน่วยความจำของ Aether (`data/`) หายทุกครั้งที่ deploy
+* widget จะเรียก asset จาก `assetPrefix` ที่ฝังตอน build ถ้าเปลี่ยนโดเมนต้อง redeploy
 
 ## ไฟล์สำคัญ
 
