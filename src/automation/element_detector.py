@@ -2,7 +2,11 @@
 Intelligent Element Detection System
 Multi-strategy approach for reliable UI automation across different configurations
 """
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 import time
 from typing import Optional, Tuple, List, Dict, Any
 from dataclasses import dataclass

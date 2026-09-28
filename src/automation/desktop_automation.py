@@ -3,7 +3,11 @@ import subprocess
 import shutil
 import asyncio
 import psutil
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 import logging

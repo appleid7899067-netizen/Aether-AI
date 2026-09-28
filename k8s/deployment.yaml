@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-<<<<<<< Updated upstream
   name: aether-api
   labels:
     app: aether-api
@@ -189,94 +188,3 @@ spec:
       target:
         type: Utilization
         averageUtilization: 80
-=======
-  name: ironclaw-api
-  namespace: ironclaw
-  labels:
-    app: ironclaw-api
-    version: v1
-spec:
-  replicas: 3
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-  selector:
-    matchLabels:
-      app: ironclaw-api
-  template:
-    metadata:
-      labels:
-        app: ironclaw-api
-        version: v1
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8000"
-        prometheus.io/path: "/metrics"
-    spec:
-      containers:
-      - name: ironclaw-api
-        image: ironclaw-api:latest
-        imagePullPolicy: Always
-        ports:
-        - name: http
-          containerPort: 8000
-          protocol: TCP
-        envFrom:
-        - configMapRef:
-            name: ironclaw-config
-        - secretRef:
-            name: ironclaw-secrets
-        env:
-        - name: DATABASE_URL
-          value: "postgresql+asyncpg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)"
-        - name: REDIS_URL
-          value: "redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)/0"
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "1000m"
-          limits:
-            memory: "4Gi"
-            cpu: "2000m"
-        livenessProbe:
-          httpGet:
-            path: /health/live
-            port: http
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health/ready
-            port: http
-          initialDelaySeconds: 20
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
-        volumeMounts:
-        - name: data
-          mountPath: /app/data
-        - name: logs
-          mountPath: /app/logs
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: ironclaw-data-pvc
-      - name: logs
-        emptyDir: {}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - ironclaw-api
-              topologyKey: kubernetes.io/hostname
->>>>>>> Stashed changes

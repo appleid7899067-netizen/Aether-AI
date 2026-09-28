@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-<<<<<<< Updated upstream
   # Aether AI Main API
   aether-api:
     build:
@@ -26,35 +25,34 @@ services:
     restart: unless-stopped
     networks:
       - aether-network
-=======
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: ironclaw-postgres
-    environment:
-      POSTGRES_USER: ironclaw
-      POSTGRES_PASSWORD: ironclaw_password
-      POSTGRES_DB: ironclaw_db
-      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ironclaw -d ironclaw_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      - ironclaw-network
->>>>>>> Stashed changes
 
   # Redis Cache
   redis:
     image: redis:7-alpine
-<<<<<<< Updated upstream
+    container_name: aether-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - aether-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: aether-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=aether
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=aether_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
     container_name: aether-redis
     ports:
       - "6379:6379"
@@ -155,93 +153,3 @@ volumes:
 
 networks:
   aether-network:
-=======
-    container_name: ironclaw-redis
-    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      - ironclaw-network
-
-  # Qdrant Vector Database
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: ironclaw-qdrant
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - qdrant_data:/qdrant/storage
-    environment:
-      QDRANT__SERVICE__GRPC_PORT: "6334"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      - ironclaw-network
-
-  # Prometheus (Optional - for production monitoring)
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: ironclaw-prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    restart: unless-stopped
-    networks:
-      - ironclaw-network
-    profiles:
-      - monitoring
-
-  # Grafana (Optional - for dashboards)
-  grafana:
-    image: grafana/grafana:latest
-    container_name: ironclaw-grafana
-    ports:
-      - "3001:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_USERS_ALLOW_SIGN_UP: "false"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
-    restart: unless-stopped
-    networks:
-      - ironclaw-network
-    profiles:
-      - monitoring
-
-volumes:
-  postgres_data:
-    driver: local
-  redis_data:
-    driver: local
-  qdrant_data:
-    driver: local
-  prometheus_data:
-    driver: local
-  grafana_data:
-    driver: local
-
-networks:
-  ironclaw-network:
->>>>>>> Stashed changes
-    driver: bridge

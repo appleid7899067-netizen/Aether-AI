@@ -31,10 +31,10 @@ def main():
     sys.stdout.reconfigure(encoding='utf-8')
     sys.stderr.reconfigure(encoding='utf-8')
     
-    logger.info("60)
+    logger.info("=" * 60)
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
     logger.info(f"Environment: {settings.environment}")
-    logger.info("60)
+    logger.info("=" * 60)
 
     logger.info("Configuration loaded successfully")
     logger.info(f"API Server: {settings.api_host}:{settings.api_port}")
@@ -67,11 +67,11 @@ def main():
         
         logger.info("\n" + "=" * 60)
         logger.info("Voice Pipeline Ready")
-        logger.info("60)
+        logger.info("=" * 60)
         logger.info(f"Wake Word: '{settings.wake_word}'")
         logger.info(f"STT Mode: {'Cloud (OpenAI)' if config.stt_use_cloud else 'Local (Whisper)'}")
         logger.info(f"TTS Mode: {config.tts_provider}")
-        logger.info("60)
+        logger.info("=" * 60)
         
         # Start the pipeline
         logger.info("\n🚀 Starting voice interaction pipeline...")

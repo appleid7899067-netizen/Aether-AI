@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aether AI - Cloud Dashboard</title>
+<style>
+  :root { --bg:#05070d; --panel:#0d1220; --line:#1d2a44; --glow:#00e5ff; --accent:#9c27b0; --text:#e6f1ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:radial-gradient(1200px 600px at 20% -10%, #10203a 0%, var(--bg) 60%);
+         color:var(--text); font-family: 'Segoe UI', Roboto, 'Noto Sans Thai', sans-serif; min-height:100vh; }
+  header { padding:22px 26px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  h1 { font-size:20px; margin:0; letter-spacing:.5px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:#ff5252; box-shadow:0 0 12px currentColor; }
+  .dot.ok { background:#00e676; }
+  .muted { color:#8fa6c4; font-size:13px; }
+  main { padding:22px 26px; display:grid; gap:18px; grid-template-columns: repeat(auto-fit, minmax(330px,1fr)); }
+  .card { background:linear-gradient(180deg, rgba(20,30,52,.85), rgba(10,14,26,.9)); border:1px solid var(--line);
+          border-radius:14px; padding:16px 18px; box-shadow:0 0 26px rgba(0,229,255,.06); }
+  .card h2 { margin:0 0 12px; font-size:14px; text-transform:uppercase; letter-spacing:1.2px; color:var(--glow); }
+  .row { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:5px 0; border-bottom:1px dashed rgba(255,255,255,.06); }
+  .row:last-child { border-bottom:none; }
+  code { background:rgba(0,229,255,.08); padding:2px 6px; border-radius:6px; font-size:12.5px; }
+  #log { max-height:320px; overflow:auto; display:flex; flex-direction:column; gap:10px; }
+  .msg { padding:10px 12px; border-radius:12px; font-size:14px; line-height:1.5; white-space:pre-wrap; }
+  .user { background:rgba(0,229,255,.12); border:1px solid rgba(0,229,255,.3); align-self:flex-end; max-width:88%; }
+  .ai { background:rgba(156,39,176,.12); border:1px solid rgba(156,39,176,.35); max-width:88%; }
+  .sys { color:#8fa6c4; font-size:12.5px; }
+  form { display:flex; gap:10px; margin-top:12px; }
+  input[type=text] { flex:1; padding:11px 13px; border-radius:10px; border:1px solid var(--line); background:#070b15; color:var(--text); }
+  button { padding:11px 18px; border-radius:10px; border:1px solid rgba(0,229,255,.35); background:rgba(0,229,255,.14);
+           color:var(--glow); cursor:pointer; font-weight:600; }
+  button:hover { background:rgba(0,229,255,.24); }
+  a { color:var(--glow); }
+</style>
+</head>
+<body>
+<header>
+  <span class="dot" id="dot"></span>
+  <h1>Aether AI <span class="muted" id="ver"></span></h1>
+  <span class="muted" id="env"></span>
+  <span class="muted" style="margin-left:auto">
+    <a href="/docs">/docs</a> · <a href="/openapi.json">/openapi.json</a> · <a href="/health">/health</a>
+  </span>
+</header>
+
+<main>
+  <section class="card">
+    <h2>สถานะระบบ / System status</h2>
+    <div id="status">กำลังโหลด...</div>
+  </section>
+
+  <section class="card">
+    <h2>โมดูลที่โหลดได้ / Loaded routers</h2>
+    <div id="routers" class="muted">-</div>
+  </section>
+
+  <section class="card" style="grid-column:1/-1">
+    <h2>คุยกับ Aether / Chat</h2>
+    <div id="log"><div class="sys">ต้องตั้งค่า API key (เช่น GROQ_API_KEY หรือ OPENAI_API_KEY) บน Render ก่อน ระบบจึงจะตอบได้</div></div>
+    <form id="chatForm" autocomplete="off">
+      <input type="text" id="prompt" placeholder="ถามอะไรก็ได้... (ต้องมี API key)" />
+      <button type="submit" id="send">ส่ง / Send</button>
+    </form>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const api = (...p) => p.join('').replace(/\/+/, '/');
+
+async function refresh() {
+  try {
+    const health = await (await fetch('/health')).json();
+    $('dot').classList.add('ok');
+    $('ver').textContent = 'v' + (health.version || '?');
+    $('env').textContent = health.environment || '';
+    $('status').innerHTML = Object.entries(health.components || {})
+      .map(([k, v]) => `<div class="row"><span>${k}</span><code>${v}</code></div>`).join('');
+  } catch (e) {
+    $('dot').classList.remove('ok');
+    $('status').innerHTML = '<div class="row"><span>API</span><code>ไม่ตอบสนอง</code></div>';
+  }
+  try {
+    const root = await (await fetch('/')).json();
+    const loaded = Object.entries(root.routers || {})
+      .map(([n, p]) => `<div class="row"><span>${n}</span><code>${p}</code></div>`).join('');
+    const disabled = Object.entries(root.disabled_routers || {})
+      .map(([n, why]) => `<div class="row"><span style="opacity:.6">${n} (ปิด)</span><code>${why}</code></div>`).join('');
+    $('routers').innerHTML = loaded + disabled;
+  } catch (e) { /* ignore */ }
+}
+
+$('chatForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const text = $('prompt').value.trim();
+  if (!text) return;
+  const log = $('log');
+  log.insertAdjacentHTML('beforeend', `<div class="msg user">${text.replace(/[<>]/g, '')}</div>`);
+  $('prompt').value = '';
+  $('send').disabled = true;
+  const pending = document.createElement('div');
+  pending.className = 'msg sys';
+  pending.textContent = 'Aether กำลังคิด...';
+  log.appendChild(pending);
+  try {
+    const res = await fetch('/api/v1/chat/conversation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, session_id: 'dashboard' })
+    });
+    const data = await res.json();
+    pending.remove();
+    const reply = data.content || data.detail || JSON.stringify(data);
+    log.insertAdjacentHTML('beforeend', `<div class="msg ai">${String(reply).replace(/[<>]/g, '')}</div>`);
+  } catch (e) {
+    pending.textContent = 'ผิดพลาด: ' + e;
+  } finally {
+    $('send').disabled = false;
+    log.scrollTop = log.scrollHeight;
+  }
+});
+
+refresh();
+setInterval(refresh, 20000);
+</script>
+</body>
+</html>

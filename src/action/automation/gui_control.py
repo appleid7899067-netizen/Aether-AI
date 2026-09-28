@@ -1,4 +1,8 @@
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 import subprocess
 import time
 import os
@@ -25,8 +29,17 @@ class GUIController:
     def __init__(self, fail_safe: bool = True, pause_duration: float = 0.5):
         pyautogui.FAILSAFE = fail_safe
         pyautogui.PAUSE = pause_duration
-        self.screen_size = pyautogui.size()
-        
+        # On a headless server (Docker / Render / CI) pyautogui is unavailable and
+        # calling it raises; fall back to a sane default so the module can still be
+        # imported and every non-GUI feature keeps working.
+        self.gui_available = True
+        try:
+            self.screen_size = pyautogui.size()
+        except Exception as exc:  # noqa: BLE001
+            self.gui_available = False
+            self.screen_size = (1920, 1080)
+            logger.warning(f"GUI automation unavailable ({exc}); using headless defaults")
+
     def get_screen_size(self) -> Tuple[int, int]:
         return self.screen_size
     

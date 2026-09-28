@@ -1,0 +1,91 @@
+# =============================================================================
+# Render Blueprint for Aether AI (headless API + web dashboard)
+# -----------------------------------------------------------------------------
+# Deploy:  Render Dashboard -> New + -> Blueprint -> pick this repository
+# Docs:    RENDER_DEPLOY_TH.md (Thai) / README "Deploy on Render"
+#
+# The service uses the headless requirements file, so the build stays small and
+# installs in well under a minute.  GUI-only routers (desktop control, live
+# testing, autonomous desktop actions) disable themselves at runtime; everything
+# else (chat, memory, voice synthesis, bug-bounty recon, monitoring, n8n ...) is
+# available.
+# =============================================================================
+services:
+  - type: web
+    name: aether-ai-api
+    runtime: python
+    plan: free
+    region: singapore
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /health
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements-server.txt
+    startCommand: uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      # Render generates a strong secret for you
+      - key: AETHER_SECRET_KEY
+        generateValue: true
+      # Allow the dashboard / any front-end origin to call the API
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      # Keep the heavy desktop features off in the cloud
+      - key: ENABLE_SCREEN_MONITORING
+        value: "false"
+      - key: ENABLE_PC_CONTROL
+        value: "false"
+      - key: ENABLE_DAILY_REPORTS
+        value: "false"
+      # ---- AI provider keys (set in the Render dashboard, never in Git) ----
+      # At least one is required for chat to answer.
+      - key: GROQ_API_KEY          # free tier available at console.groq.com
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: FIREWORKS_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY        # optional, web search tool
+        sync: false
+      - key: PORCUPINE_API_KEY     # optional, wake word
+        sync: false
+
+# -----------------------------------------------------------------------------
+# Optional extras - uncomment what you need.
+# -----------------------------------------------------------------------------
+#  # Persistent disk (paid plans only): keeps ChromaDB memory and SQLite between
+#  # deploys/restarts.  On the free plan data/ is wiped on every deploy.
+#  - type: web
+#    name: aether-ai-api
+#    disk:
+#      name: aether-data
+#      mountPath: /opt/render/project/src/data
+#      sizeGB: 1
+
+#  # Instant chat demo UI (Vite + React) - needs the API URL at build time.
+#  - type: web
+#    name: aether-ai-ui
+#    runtime: static
+#    rootDir: ui-ts
+#    buildCommand: npm ci && npm run build
+#    staticPublishPath: ./dist
+#    envVars:
+#      - key: VITE_API_URL
+#        fromService:
+#          type: web
+#          name: aether-ai-api
+#          envVarKey: RENDER_EXTERNAL_URL
+#    routes:
+#      - type: rewrite
+#        source: /*
+#        destination: /index.html

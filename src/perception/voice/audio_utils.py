@@ -1,5 +1,9 @@
 import numpy as np
-import pyaudio
+from src.utils.optional_import import optional_import
+
+pyaudio = optional_import(
+    "pyaudio", hint="Microphone capture needs the PortAudio system library."
+)
 import wave
 import io
 import logging

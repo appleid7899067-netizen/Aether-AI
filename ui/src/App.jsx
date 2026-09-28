@@ -159,7 +159,6 @@ function App() {
             padding: '12px',
             minHeight: '60px',
             display: 'flex',
-<<<<<<< Updated upstream
             alignItems: 'center',
             border: '1px solid rgba(255,255,255,0.05)',
             webkitAppRegion: 'no-drag'
@@ -169,75 +168,6 @@ function App() {
               {isListening ? "Listening, Sir..." : isSpeaking ? "Speaking..." : "Awaiting Systems..."}
             </div>
           </Box>
-=======
-            gap: 1,
-            zIndex: 100,
-          }}
-        >
-          <ThemeSwitcher />
-
-          <IconButton
-            onClick={() => setShowV090Panel(!showV090Panel)}
-            sx={{
-              backgroundColor: showV090Panel ? 'rgba(156, 39, 176, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid var(--border-color)',
-              color: showV090Panel ? '#9c27b0' : 'var(--primary-color)',
-              '&:hover': {
-                backgroundColor: showV090Panel ? 'rgba(156, 39, 176, 0.3)' : 'rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 0 10px var(--glow-color)',
-              },
-            }}
-          >
-            <Badge badgeContent={newSuggestions} color="error">
-              <SuggestionsIcon />
-            </Badge>
-          </IconButton>
-
-          <IconButton
-            onClick={() => setShowChat(!showChat)}
-            sx={{
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--primary-color)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 0 10px var(--glow-color)',
-              },
-            }}
-          >
-            <ChatIcon />
-          </IconButton>
-
-          <IconButton
-            onClick={() => setShowSettings(!showSettings)}
-            sx={{
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--primary-color)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 0 10px var(--glow-color)',
-              },
-            }}
-          >
-            <SettingsIcon />
-          </IconButton>
-
-          <IconButton
-            onClick={() => setShowAnimeCharacter(!showAnimeCharacter)}
-            sx={{
-              backgroundColor: showAnimeCharacter ? 'rgba(255, 105, 180, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-              border: showAnimeCharacter ? '1px solid rgba(255, 105, 180, 0.5)' : '1px solid var(--border-color)',
-              color: showAnimeCharacter ? '#ff69b4' : 'var(--primary-color)',
-              '&:hover': {
-                backgroundColor: showAnimeCharacter ? 'rgba(255, 105, 180, 0.3)' : 'rgba(255, 255, 255, 0.1)',
-                boxShadow: showAnimeCharacter ? '0 0 10px #ff69b4' : '0 0 10px var(--glow-color)',
-              },
-            }}
-          >
-            <FaceIcon />
-          </IconButton>
->>>>>>> Stashed changes
         </Box>
 
         <Drawer
@@ -245,7 +175,6 @@ function App() {
           open={showV090Panel}
           onClose={() => setShowV090Panel(false)}
           PaperProps={{
-<<<<<<< Updated upstream
             sx: {
               width: { xs: '100%', sm: 500, md: 600 },
               backgroundColor: 'rgba(0, 10, 20, 0.95)',
@@ -296,62 +225,9 @@ function App() {
             <Box sx={{ maxHeight: 'calc(100vh - 120px)', overflow: 'auto' }}>
               {v090Panels[v090Tab]?.component}
             </Box>
-=======
-            sx={{
-              width: {xs: '100%', sm: 500, md: 600 },
-        backgroundColor: 'rgba(0, 10, 20, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderRight: '1px solid rgba(156, 39, 176, 0.3)',
-            },
-          }}
-        >
-        <Box sx={{ p: 2 }}>
-          <Tabs
-            value={v090Tab}
-            onChange={(e, newValue) => setV090Tab(newValue)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              mb: 2,
-              '& .MuiTab-root': {
-                color: 'rgba(255, 255, 255, 0.6)',
-                minWidth: 'auto',
-                px: 2,
-              },
-              '& .Mui-selected': {
-                color: '#9c27b0',
-              },
-              '& .MuiTabs-indicator': {
-                backgroundColor: '#9c27b0',
-                boxShadow: '0 0 10px #9c27b0',
-              },
-            }}
-          >
-            {v090Panels.map((panel, index) => (
-              <Tab
-                key={index}
-                icon={
-                  panel.badge ? (
-                    <Badge badgeContent={panel.badge} color="error">
-                      {panel.icon}
-                    </Badge>
-                  ) : (
-                    panel.icon
-                  )
-                }
-                label={panel.label}
-                iconPosition="start"
-              />
-            ))}
-          </Tabs>
-          <Box sx={{ maxHeight: 'calc(100vh - 120px)', overflow: 'auto' }}>
-            {v090Panels[v090Tab]?.component}
->>>>>>> Stashed changes
           </Box>
-        </Box>
-      </Drawer>
+        </Drawer>
 
-<<<<<<< Updated upstream
         <Drawer
           anchor="right"
           open={showChat}
@@ -367,54 +243,16 @@ function App() {
         >
           <ChatInterface sessionId="voice-session" onClose={() => setShowChat(false)} />
         </Drawer>
-=======
-      <Drawer
-        anchor="right"
-        open={showChat}
-        onClose={() => setShowChat(false)}
-        PaperProps={{
-          sx: {
-            width: { xs: '100%', sm: 400 },
-            backgroundColor: 'rgba(0, 20, 20, 0.95)',
-            backdropFilter: 'blur(10px)',
-            borderLeft: '1px solid rgba(0, 255, 255, 0.3)',
-          },
-        }}
-      >
-        <ChatInterface onClose={() => setShowChat(false)} />
-      </Drawer>
->>>>>>> Stashed changes
-
-      <Settings open={showSettings} onClose={() => setShowSettings(false)} />
-
-      <Notifications notifications={notifications} />
-
-      <CompactTaskBar tasks={activeTasks} />
-
-<<<<<<< Updated upstream
         {/* Desktop Character and Floating Bubble removed - using SimpleVoiceAssistant instead */}
+
+        {/* Settings drawer + notifications + task queue overlay */}
+        <Drawer anchor="right" open={showSettings} onClose={() => setShowSettings(false)}>
+          <Settings />
+        </Drawer>
+        <Notifications notifications={notifications} />
+        <CompactTaskBar tasks={activeTasks} hudState={hudState} />
       </Box>
-=======
-      {showAnimeCharacter && (
-        <AnimeCharacter
-          isListening={isListening}
-          isSpeaking={isSpeaking}
-          mood="neutral"
-        />
-      )}
-
-      <FloatingAIBubble
-        onOpenChat={() => setShowChat(true)}
-        onOpenVoice={handleVoiceCommand}
-        onOpenSettings={() => setShowSettings(true)}
-        notifications={newSuggestions}
-      />
-
-      {/* Live Jarvis HUD Dashboard */}
-      <TaskQueueDashboard hudState={hudState} isVisible={true} />
-    </Box>
->>>>>>> Stashed changes
-    </ThemeProvider >
+    </ThemeProvider>
   );
 }
 

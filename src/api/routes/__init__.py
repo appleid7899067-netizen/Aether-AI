@@ -1,59 +1,35 @@
-<<<<<<< Updated upstream
 """
-API routes module.
-"""
+API routes package.
 
-from . import (
-    chat,
-    tasks,
-    settings,
-    openclaw,
-    security,
-    bugbounty,
-    bugbounty_auto,
-    voice,
-    memory,
-    voice_commands,
-    plugins,
-    developer,
-    discord,
-    workflows,
-    monitor,
-    proactive,
-    control,
-    intelligence,
-    evolution,
-    autonomous,
-    live_testing,
-    v3,
-    n8n
-)
+Modules are imported lazily by the application (see ``src.api.main``) so that a
+single optional/heavy dependency (GUI automation, OCR, ...) cannot prevent the
+whole API from booting.
+"""
 
 __all__ = [
-    'chat',
-    'tasks',
-    'settings',
-    'openclaw',
-    'security',
-    'bugbounty',
-    'bugbounty_auto',
-    'voice',
-    'memory',
-    'voice_commands',
-    'plugins',
-    'developer',
-    'discord',
-    'workflows',
-    'monitor',
-    'proactive',
-    'control',
-    'intelligence',
-    'evolution',
-    'autonomous',
-    'live_testing',
-    'v3',
-    'n8n'
+    "autonomous",
+    "bugbounty",
+    "bugbounty_auto",
+    "chat",
+    "control",
+    "desktop",
+    "developer",
+    "discord",
+    "evolution",
+    "intelligence",
+    "live_testing",
+    "memory",
+    "monitor",
+    "n8n",
+    "openclaw",
+    "plugins",
+    "proactive",
+    "security",
+    "settings",
+    "tasks",
+    "v3",
+    "vision",
+    "voice",
+    "voice_commands",
+    "workflows",
 ]
-=======
-# Initialize routes package
->>>>>>> Stashed changes

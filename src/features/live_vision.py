@@ -6,7 +6,11 @@ Continuously monitors screen and provides context to Aether AI
 import threading
 import time
 import queue
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 import numpy as np
 from PIL import Image
 import imagehash

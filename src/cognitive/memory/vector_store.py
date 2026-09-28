@@ -50,15 +50,39 @@ class VectorStore:
         os.makedirs(persist_directory, exist_ok=True)
         
         self.client = chromadb.PersistentClient(path=str(persist_directory))
-        
-        self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name=embedding_model
-        )
+
+        self.embedding_function = self._build_embedding_function(embedding_model)
         
         self.collections = {}
         self._initialize_collections()
         
         logger.info(f"VectorStore initialized - Memory path: {persist_directory}")
+
+    @staticmethod
+    def _build_embedding_function(embedding_model: str):
+        """Pick the best embedding backend available in this environment.
+
+        ``sentence-transformers`` (PyTorch, ~2 GB) is perfect on a desktop but far
+        too heavy for a small container, so we fall back to Chroma's bundled ONNX
+        MiniLM model and finally to Chroma's default hashing embeddings.
+        """
+        try:
+            return embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name=embedding_model
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                f"sentence-transformers unavailable ({exc}); "
+                "falling back to the lightweight ONNX embedding model"
+            )
+
+        try:
+            return embedding_functions.ONNXMiniLM_L6_V2()
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"ONNX embeddings unavailable ({exc}); using hash embeddings")
+
+        return embedding_functions.DefaultEmbeddingFunction()
+
     
     def _initialize_collections(self):
         """Initialize default collections"""

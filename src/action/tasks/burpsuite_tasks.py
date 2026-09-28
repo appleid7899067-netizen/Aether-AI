@@ -4,7 +4,11 @@ Complete multi-step BurpSuite workflows with intelligent element detection
 """
 import time
 import subprocess
-import pyautogui
+from src.utils.optional_import import optional_import
+
+pyautogui = optional_import(
+    "pyautogui", hint="Desktop automation needs a graphical session (X11 / Windows / macOS)."
+)
 from typing import Dict, Any, Optional
 import json
 
@@ -103,7 +107,6 @@ class BurpSuiteAutomation:
     def configure_proxy(self) -> Dict[str, Any]:
         """Configure BurpSuite proxy settings using intelligent detection"""
         try:
-<<<<<<< Updated upstream
             logger.info("[BURP] Configuring proxy with intelligent element detection")
             
             # Click on Proxy tab using element detection
@@ -128,32 +131,10 @@ class BurpSuiteAutomation:
         except Exception as e:
             logger.error(f"[BURP] Proxy configuration error: {e}")
             return {"status": "error", "message": str(e)}
-=======
-            wm = getattr(self.gui, 'window_manager', None)
-            from src.action.automation.gui_control import WindowManager
-            if not wm:
-                wm = WindowManager()
-                
-            wm.focus_window("Burp Suite")
-            time.sleep(0.5)
-            
-            # Send standard shortcut to jump to proxy settings (Ctrl+Shift+P is settings)
-            self.gui.hotkey('ctrl', 'shift', 'p')
-            time.sleep(1)
-            
-            # Close settings dialog
-            self.gui.press_key('escape')
-            
-            return {"status": "success", "message": "Proxy configuration automated"}
-            
-        except Exception as e:
-            return {"status": "error", "message": f"Proxy configuration failed: {str(e)}"}
->>>>>>> Stashed changes
     
     def turn_on_intercept(self) -> Dict[str, Any]:
         """Turn on HTTP intercept using intelligent detection"""
         try:
-<<<<<<< Updated upstream
             logger.info("[BURP] Enabling intercept with intelligent detection")
             time.sleep(1)
             
@@ -183,24 +164,6 @@ class BurpSuiteAutomation:
         except Exception as e:
             logger.error(f"[BURP] Intercept toggle error: {e}")
             return {"status": "error", "message": str(e)}
-=======
-            wm = getattr(self.gui, 'window_manager', None)
-            from src.action.automation.gui_control import WindowManager
-            if not wm:
-                wm = WindowManager()
-                
-            wm.focus_window("Burp Suite")
-            time.sleep(0.5)
-            
-            # Toggle intercept shortcut
-            self.gui.hotkey('ctrl', 'shift', 'i')
-            time.sleep(0.5)
-            
-            return {"status": "success", "message": "Intercept toggled via hotkey"}
-            
-        except Exception as e:
-            return {"status": "error", "message": f"Intercept toggle failed: {str(e)}"}
->>>>>>> Stashed changes
     
     def start_spider(self, target_url: str) -> Dict[str, Any]:
         """Start spider/crawler on target using intelligent navigation"""
@@ -272,7 +235,6 @@ class BurpSuiteAutomation:
     def check_scan_results(self, target_url: str = None) -> Dict[str, Any]:
         """Check for vulnerabilities found using basic structural analysis"""
         try:
-<<<<<<< Updated upstream
             import urllib.request
             
             if not target_url:
@@ -307,27 +269,6 @@ class BurpSuiteAutomation:
             
         except Exception as e:
             return {"status": "error", "message": f"Scan failed: {str(e)}"}
-=======
-            # Genuine scan result parser would parse Burp REST API or log files.
-            # Here we detect if the GUI is active to signify a completed task structure.
-            if not (self.launcher.is_application_running('burp') or self.launcher.is_application_running('java')):
-                return {"status": "error", "message": "BurpSuite is no longer running."}
-            
-            # Since no extensions are loaded by default to export metrics, we simulate log reading
-            # while acknowledging the limitation in the task result context.
-            return {
-                "status": "success", 
-                "message": "Scan verification complete. Manual review recommended.",
-                "results": {
-                    "total_issues": 0,
-                    "info": "Burp REST API not enabled. GUI fallback parsing returns 0 extracted issues.",
-                    "vulnerabilities": []
-                }
-            }
-            
-        except Exception as e:
-            return {"status": "error", "message": f"Scan verification failed: {str(e)}"}
->>>>>>> Stashed changes
 
 def create_burpsuite_setup_task(target_url: Optional[str] = None) -> Task:
     """Create a complete BurpSuite setup and scan task with Jarvis-style step narrations"""
@@ -395,14 +336,9 @@ def create_burpsuite_setup_task(target_url: Optional[str] = None) -> Task:
         # Step 8: Check results
         task.add_step(TaskStep(
             step_id="results",
-<<<<<<< Updated upstream
             description="Extracting vulnerability report from target...",
             action=burp.check_scan_results,
             params={"target_url": target_url}
-=======
-            description="Vulnerabilities check kar raha hoon, sir... dekhte hain kya mila...",
-            action=burp.check_scan_results
->>>>>>> Stashed changes
         ))
     
     return task
