@@ -84,6 +84,9 @@ services:
     rootDir: chatgpt-app
     autoDeploy: true
     healthCheckPath: /
+    # Measured build peaks at ~500 MB RSS, which is right at the free plan's
+    # 512 MB.  If the build dies with "Killed"/SIGKILL, either move this one
+    # service to the Starter plan (2 GB) or build it on your machine.
     buildCommand: npm install --no-audit --no-fund && npm run build
     startCommand: npx next start -H 0.0.0.0
     buildFilter:

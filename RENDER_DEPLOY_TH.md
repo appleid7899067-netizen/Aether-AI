@@ -125,6 +125,7 @@ git push origin arena/01a0e54b-aether-ai
 | เปิด `/mcp` แล้วได้ 404/405 | ต้องเป็น **POST** (ไม่ใช่เปิดในเบราว์เซอร์) — ใช้คำสั่ง curl ในข้อ 2.5 ตรวจ และตรวจว่า `rootDir = chatgpt-app` ถูกต้อง |
 | ChatGPT ตอบช้ามากในครั้งแรก | แผนฟรีจะ **หลับหลัง 15 นาที** → request แรกปลุก ~30-60 วิ (ทั้ง API และแอปแอป) ถ้าใช้จริงจังแนะนำอัปเป็น Starter (ไม่หลับ) |
 | `ask_aether` ขึ้น HTTP 503 | ยังไม่ได้ใส่ API key ฝั่ง `aether-ai-api` — ใส่ `GROQ_API_KEY` แล้ว deploy ใหม่ (หรือดู `GET /api/v1/chat/providers`) |
+| build ของ `aether-chatgpt-app` ตายกลางทาง (log ขึ้น `Killed` / signal SIGKILL) | แผนฟรีมี RAM 512 MB และ `next build` กินพีค ~500 MB → เปลี่ยนแผนเฉพาะบริการนี้เป็น **Starter** (2 GB) หรือรันแอปนี้ในเครื่องตัวเองแล้วใช้ ngrok แทน |
 | อยากให้หน้าเว็บสวย ๆ เป็นของตัวเอง | `ui-ts/` เป็น React+Vite ในตัว เปิดใช้ static site ใน `render.yaml` ได้ (มีตัวอย่างให้) แต่ต้องแก้ `ui-ts/src/App.tsx` ที่ hardcode `localhost:3001` (socket.io) ให้ชี้มา API จริงก่อน |
 
 ## 7. รันในเครื่องแบบเดียวกับ Render (ทดสอบก่อน deploy)
