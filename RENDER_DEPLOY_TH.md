@@ -87,7 +87,8 @@ git push origin arena/01a0e54b-aether-ai
 |---|---|
 | Build fail ที่ `pip install` | ดู log ว่าแพ็กไหน — บน Render ให้ใช้ `requirements-server.txt` เท่านั้น (ห้ามใช้ `requirements.txt` เพราะมี PyQt6/torch/openvino) |
 | เปิดเว็บแล้วขึ้น `Application startup failed` | ดู log คำว่า `Route module 'xxx' disabled` — ถ้าเป็น `control/desktop/autonomous/live_testing` คือเรื่องปกติ |
-| แชทตอบไม่ได้/ขึ้น 500 | ยังไม่ได้ใส่ API key → ใส่ `GROQ_API_KEY` แล้ว deploy ใหม่, เช็คที่ `/api/v1/chat/providers` ว่ามี provider แล้วหรือยัง |
+| แชทตอบไม่ได้/ขึ้น 500 | ยังไม่ได้ใส่ API key → ใส่ `GROQ_API_KEY` แล้ว deploy ใหม่, เช็คที่ `/api/v1/chat/providers` ว่ามี provider แล้วหรือยัง — **หรือใช้โหมด Puter ในหน้า dashboard ก็ไม่ต้องมี key เลย** (ดู `PUTER_SETUP_TH.md`) |
+| ปุ่มล็อกอิน Puter ในหน้าต่าง preview ไม่เด้ง | Puter ต้องเป็นแท็บปกติ (top-level) เปิด URL ของ Render ในแท็บใหม่แล้วล็อกอิน |
 | อยากใช้ความจำ (ChromaDB) | ครั้งแรกจะดาวน์โหลดโมเดล ONNX ~80 MB (ครั้งเดียว) ต้องมีเน็ตออกนอกได้ |
 | อยากให้หน้าเว็บสวย ๆ เป็นของตัวเอง | `ui-ts/` เป็น React+Vite ในตัว เปิดใช้ static site ใน `render.yaml` ได้ (มีตัวอย่างให้) แต่ต้องแก้ `ui-ts/src/App.tsx` ที่ hardcode `localhost:3001` (socket.io) ให้ชี้มา API จริงก่อน |
 

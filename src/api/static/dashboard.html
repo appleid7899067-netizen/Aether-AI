@@ -3,34 +3,46 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aether AI - Cloud Dashboard</title>
+<title>Aether AI - Dashboard (Puter + Server)</title>
+<!-- Puter.js: โมเดล AI แบบไม่ต้องใช้ API key (ผู้ใช้ล็อกอินด้วยบัญชี Puter ของตัวเอง) -->
+<script src="https://js.puter.com/v2/"></script>
 <style>
-  :root { --bg:#05070d; --panel:#0d1220; --line:#1d2a44; --glow:#00e5ff; --accent:#9c27b0; --text:#e6f1ff; }
+  :root { --bg:#05070d; --panel:#0d1220; --line:#1d2a44; --glow:#00e5ff; --accent:#9c27b0; --text:#e6f1ff; --ok:#00e676; --warn:#ffb300; }
   * { box-sizing: border-box; }
   body { margin:0; background:radial-gradient(1200px 600px at 20% -10%, #10203a 0%, var(--bg) 60%);
-         color:var(--text); font-family: 'Segoe UI', Roboto, 'Noto Sans Thai', sans-serif; min-height:100vh; }
-  header { padding:22px 26px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+         color:var(--text); font-family:'Segoe UI', Roboto, 'Noto Sans Thai', sans-serif; min-height:100vh; }
+  header { padding:20px 26px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   h1 { font-size:20px; margin:0; letter-spacing:.5px; }
   .dot { width:10px; height:10px; border-radius:50%; background:#ff5252; box-shadow:0 0 12px currentColor; }
-  .dot.ok { background:#00e676; }
+  .dot.ok { background:var(--ok); }
   .muted { color:#8fa6c4; font-size:13px; }
-  main { padding:22px 26px; display:grid; gap:18px; grid-template-columns: repeat(auto-fit, minmax(330px,1fr)); }
-  .card { background:linear-gradient(180deg, rgba(20,30,52,.85), rgba(10,14,26,.9)); border:1px solid var(--line);
+  main { padding:20px 26px 60px; display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); }
+  .card { background:linear-gradient(180deg,rgba(20,30,52,.85),rgba(10,14,26,.9)); border:1px solid var(--line);
           border-radius:14px; padding:16px 18px; box-shadow:0 0 26px rgba(0,229,255,.06); }
-  .card h2 { margin:0 0 12px; font-size:14px; text-transform:uppercase; letter-spacing:1.2px; color:var(--glow); }
-  .row { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:5px 0; border-bottom:1px dashed rgba(255,255,255,.06); }
+  .card h2 { margin:0 0 12px; font-size:13.5px; text-transform:uppercase; letter-spacing:1.2px; color:var(--glow); }
+  .row { display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:5px 0; border-bottom:1px dashed rgba(255,255,255,.06); }
   .row:last-child { border-bottom:none; }
   code { background:rgba(0,229,255,.08); padding:2px 6px; border-radius:6px; font-size:12.5px; }
-  #log { max-height:320px; overflow:auto; display:flex; flex-direction:column; gap:10px; }
-  .msg { padding:10px 12px; border-radius:12px; font-size:14px; line-height:1.5; white-space:pre-wrap; }
+  #log { max-height:340px; overflow:auto; display:flex; flex-direction:column; gap:10px; }
+  .msg { padding:10px 12px; border-radius:12px; font-size:14px; line-height:1.55; white-space:pre-wrap; }
   .user { background:rgba(0,229,255,.12); border:1px solid rgba(0,229,255,.3); align-self:flex-end; max-width:88%; }
   .ai { background:rgba(156,39,176,.12); border:1px solid rgba(156,39,176,.35); max-width:88%; }
   .sys { color:#8fa6c4; font-size:12.5px; }
-  form { display:flex; gap:10px; margin-top:12px; }
-  input[type=text] { flex:1; padding:11px 13px; border-radius:10px; border:1px solid var(--line); background:#070b15; color:var(--text); }
-  button { padding:11px 18px; border-radius:10px; border:1px solid rgba(0,229,255,.35); background:rgba(0,229,255,.14);
-           color:var(--glow); cursor:pointer; font-weight:600; }
+  .err { background:rgba(255,82,82,.12); border:1px solid rgba(255,82,82,.4); color:#ffb4b4; }
+  form { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  input[type=text], select { padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:#070b15; color:var(--text); font-size:13.5px; }
+  input[type=text] { flex:1; min-width:180px; }
+  button { padding:10px 16px; border-radius:10px; border:1px solid rgba(0,229,255,.35); background:rgba(0,229,255,.14);
+           color:var(--glow); cursor:pointer; font-weight:600; font-size:13.5px; }
   button:hover { background:rgba(0,229,255,.24); }
+  button:disabled { opacity:.5; cursor:progress; }
+  button.ghost { border-color:var(--line); color:#9fb4d4; background:transparent; font-weight:500; }
+  button.puter { border-color:rgba(179,136,255,.5); background:rgba(179,136,255,.16); color:#d0bfff; }
+  .bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .pill { font-size:12px; padding:3px 9px; border-radius:999px; border:1px solid var(--line); color:#9fb4d4; }
+  .pill.ok { color:var(--ok); border-color:rgba(0,230,118,.4); }
+  .pill.warn { color:var(--warn); border-color:rgba(255,179,0,.4); }
+  label.chk { font-size:12.5px; color:#9fb4d4; display:flex; gap:6px; align-items:center; }
   a { color:var(--glow); }
 </style>
 </head>
@@ -40,7 +52,7 @@
   <h1>Aether AI <span class="muted" id="ver"></span></h1>
   <span class="muted" id="env"></span>
   <span class="muted" style="margin-left:auto">
-    <a href="/docs">/docs</a> · <a href="/openapi.json">/openapi.json</a> · <a href="/health">/health</a>
+    <a href="/docs">/docs</a> · <a href="/api">/api</a> · <a href="/health">/health</a>
   </span>
 </header>
 
@@ -51,78 +63,243 @@
   </section>
 
   <section class="card">
-    <h2>โมดูลที่โหลดได้ / Loaded routers</h2>
-    <div id="routers" class="muted">-</div>
+    <h2>การเชื่อมต่อโมเดล / Model connection</h2>
+    <div id="modelinfo" class="muted">กำลังตรวจสอบ Puter...</div>
+    <div class="bar" style="margin-top:12px">
+      <button id="signinBtn" class="puter">🔐 ล็อกอินด้วย Puter</button>
+      <button id="signoutBtn" class="ghost" hidden>ออกจากระบบ</button>
+    </div>
+    <div class="muted" style="font-size:12.5px; line-height:1.6">
+      Puter = ผู้ใช้แต่ละคนใช้โควต้าของบัญชีตัวเอง (User-Pays) จึง<b>ไม่ต้องมี API key บนเซิร์ฟเวอร์</b><br />
+      เซิร์ฟเวอร์ Aether ยังใช้ key ได้ตามปกติ (โหมด Server) — ดูสถานะที่การ์ดด้านขวา
+    </div>
   </section>
 
   <section class="card" style="grid-column:1/-1">
     <h2>คุยกับ Aether / Chat</h2>
-    <div id="log"><div class="sys">ต้องตั้งค่า API key (เช่น GROQ_API_KEY หรือ OPENAI_API_KEY) บน Render ก่อน ระบบจึงจะตอบได้</div></div>
+
+    <div class="bar">
+      <select id="provider">
+        <option value="puter">Puter (ไม่ต้องใช้ API key)</option>
+        <option value="server">Server (ต้องมี API key ที่เซิร์ฟเวอร์)</option>
+      </select>
+
+      <select id="model">
+        <option value="openai/gpt-5.4-nano">openai/gpt-5.4-nano (เร็ว/ประหยัด)</option>
+        <option value="openai/gpt-5.5">openai/gpt-5.5</option>
+        <option value="anthropic/claude-sonnet-5">anthropic/claude-sonnet-5</option>
+        <option value="google/gemini-3.1-pro-preview">google/gemini-3.1-pro-preview</option>
+        <option value="x-ai/grok-4.7">x-ai/grok-4.7</option>
+        <option value="deepseek/deepseek-chat">deepseek/deepseek-chat</option>
+        <option value="meta-llama/llama-4-maverick">meta-llama/llama-4-maverick</option>
+        <option value="__custom__">อื่น ๆ (พิมพ์เอง)</option>
+      </select>
+      <input type="text" id="customModel" placeholder="เช่น openai/gpt-5.4-mini" hidden />
+      <label class="chk"><input type="checkbox" id="stream" checked /> สตรีมทีละคำ</label>
+      <label class="chk"><input type="checkbox" id="saveMemory" /> บันทึกลงความจำ Aether</label>
+    </div>
+
+    <div class="bar">
+      <span class="pill" id="puterPill">Puter: ยังไม่ล็อกอิน</span>
+      <span class="pill" id="serverPill">Server: กำลังตรวจ...</span>
+    </div>
+
+    <div id="log"><div class="sys">โหมด Puter ไม่ต้องตั้งค่า key — กด “ล็อกอินด้วย Puter” แล้วเริ่มคุยได้เลย (เบราว์เซอร์จะเปิดหน้าต่างล็อกอินของ Puter)</div></div>
+
     <form id="chatForm" autocomplete="off">
-      <input type="text" id="prompt" placeholder="ถามอะไรก็ได้... (ต้องมี API key)" />
+      <input type="text" id="prompt" placeholder="ถามอะไรก็ได้..." />
       <button type="submit" id="send">ส่ง / Send</button>
+      <button type="button" id="clearLog" class="ghost">ล้าง</button>
     </form>
   </section>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
-const api = (...p) => p.join('').replace(/\/+/, '/');
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const hasPuter = () => typeof window.puter !== 'undefined';
 
-async function refresh() {
+let serverHasProvider = false;
+let puterUser = null;
+
+// ---------------------------------------------------------------- status
+async function refreshStatus() {
   try {
     const health = await (await fetch('/health')).json();
     $('dot').classList.add('ok');
     $('ver').textContent = 'v' + (health.version || '?');
     $('env').textContent = health.environment || '';
     $('status').innerHTML = Object.entries(health.components || {})
-      .map(([k, v]) => `<div class="row"><span>${k}</span><code>${v}</code></div>`).join('');
+      .map(([k, v]) => `<div class="row"><span>${esc(k)}</span><code>${esc(v)}</code></div>`).join('');
   } catch (e) {
     $('dot').classList.remove('ok');
     $('status').innerHTML = '<div class="row"><span>API</span><code>ไม่ตอบสนอง</code></div>';
   }
+
   try {
-    const root = await (await fetch('/')).json();
-    const loaded = Object.entries(root.routers || {})
-      .map(([n, p]) => `<div class="row"><span>${n}</span><code>${p}</code></div>`).join('');
-    const disabled = Object.entries(root.disabled_routers || {})
-      .map(([n, why]) => `<div class="row"><span style="opacity:.6">${n} (ปิด)</span><code>${why}</code></div>`).join('');
-    $('routers').innerHTML = loaded + disabled;
+    const providers = await (await fetch('/api/v1/chat/providers')).json();
+    serverHasProvider = Object.keys(providers.providers || {}).length > 0;
+    $('serverPill').className = 'pill ' + (serverHasProvider ? 'ok' : 'warn');
+    $('serverPill').textContent = serverHasProvider
+      ? 'Server: พร้อม (' + Object.keys(providers.providers).join(', ') + ')'
+      : 'Server: ยังไม่มี API key';
   } catch (e) { /* ignore */ }
+}
+
+// ---------------------------------------------------------------- puter auth
+async function refreshPuter() {
+  if (!hasPuter()) {
+    $('modelinfo').innerHTML = 'โหลด Puter.js ไม่ได้ (ต้องออนไลน์) — โหมด Server ยังใช้ได้';
+    $('puterPill').className = 'pill warn';
+    $('puterPill').textContent = 'Puter: โหลดสคริปต์ไม่ได้';
+    return;
+  }
+  try {
+    const signedIn = await puter.auth.isSignedIn();
+    if (signedIn) {
+      const user = await puter.auth.getUser();
+      puterUser = user;
+      $('signinBtn').hidden = true;
+      $('signoutBtn').hidden = false;
+      $('modelinfo').innerHTML =
+        `✅ ล็อกอินแล้ว: <code>${esc(user.username || user.email || 'puter user')}</code>` +
+        `<div class="muted" style="margin-top:6px;font-size:12.5px">การเรียกโมเดลจะหักโควต้าของบัญชีนี้ (User-Pays) · ดูรายชื่อโมเดลทั้งหมดได้ที่ <a href="https://developer.puter.com/ai/" target="_blank" rel="noopener">model directory</a></div>`;
+      $('puterPill').className = 'pill ok';
+      $('puterPill').textContent = 'Puter: ' + (user.username || 'พร้อมใช้');
+    } else {
+      puterUser = null;
+      $('signinBtn').hidden = false;
+      $('signoutBtn').hidden = true;
+      $('modelinfo').innerHTML = 'ยังไม่ล็อกอิน Puter — กดปุ่มด้านล่างเพื่อเข้าสู่ระบบ (ฟรี)';
+      $('puterPill').className = 'pill warn';
+      $('puterPill').textContent = 'Puter: ยังไม่ล็อกอิน';
+    }
+  } catch (e) {
+    $('modelinfo').textContent = 'ตรวจสอบสถานะ Puter ไม่ได้: ' + e.message;
+  }
+}
+
+$('signinBtn').addEventListener('click', async () => {
+  if (!hasPuter()) { alert('ยังโหลด Puter.js ไม่ได้ ลองรีเฟรชหน้า'); return; }
+  try { await puter.auth.signIn(); await refreshPuter(); }
+  catch (e) { alert('ล็อกอินไม่สำเร็จ: ' + e.message + '\n\nถ้าเปิดใน iframe/popup ถูกบล็อก ให้เปิดหน้านี้ในแท็บใหม่'); }
+});
+$('signoutBtn').addEventListener('click', async () => {
+  try { await puter.auth.signOut(); } catch (e) { /* ignore */ }
+  await refreshPuter();
+});
+
+// ---------------------------------------------------------------- chat
+function addMsg(html, cls) {
+  const log = $('log');
+  const div = document.createElement('div');
+  div.className = 'msg ' + cls;
+  div.innerHTML = html;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+
+function currentModel() {
+  const sel = $('model');
+  return sel.value === '__custom__' ? ($('customModel').value.trim() || 'openai/gpt-5.4-nano') : sel.value;
+}
+
+$('model').addEventListener('change', () => {
+  $('customModel').hidden = $('model').value !== '__custom__';
+});
+$('clearLog').addEventListener('click', () => { $('log').innerHTML = ''; });
+
+async function saveToMemory(role, content) {
+  try {
+    await fetch('/api/v1/memory/conversation/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: 'puter-dashboard', role, content }),
+    });
+  } catch (e) { /* memory is best-effort */ }
+}
+
+async function chatViaPuter(text, bubble) {
+  if (!hasPuter()) throw new Error('Puter.js ยังไม่พร้อม');
+  if (!puterUser) throw new Error('ยังไม่ได้ล็อกอิน Puter — กด “ล็อกอินด้วย Puter” ก่อน');
+
+  const model = currentModel();
+  const stream = $('stream').checked;
+  const history = [{ role: 'user', content: text }];
+
+  if (stream) {
+    const resp = await puter.ai.chat(history, { model, stream: true });
+    let out = '';
+    for await (const part of resp) {
+      if (part && part.text) { out += part.text; bubble.innerHTML = esc(out); }
+    }
+    if (!out) bubble.innerHTML = esc('(โมเดลไม่ได้ส่งข้อความกลับมา)');
+    return out;
+  }
+
+  const resp = await puter.ai.chat(history, { model });
+  const msg = resp && resp.message ? resp.message : resp;
+  let out = msg && msg.content;
+  if (Array.isArray(out)) out = out.map((c) => c.text || '').join('');
+  out = out || String(resp);
+  bubble.textContent = out;
+  return out;
+}
+
+async function chatViaServer(text, bubble) {
+  const res = await fetch('/api/v1/chat/conversation', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: text, session_id: 'dashboard' }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || ('HTTP ' + res.status));
+  const out = data.content || JSON.stringify(data);
+  bubble.textContent = out;
+  return out;
 }
 
 $('chatForm').addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const text = $('prompt').value.trim();
   if (!text) return;
-  const log = $('log');
-  log.insertAdjacentHTML('beforeend', `<div class="msg user">${text.replace(/[<>]/g, '')}</div>`);
+
+  addMsg(esc(text), 'user');
   $('prompt').value = '';
   $('send').disabled = true;
-  const pending = document.createElement('div');
-  pending.className = 'msg sys';
-  pending.textContent = 'Aether กำลังคิด...';
-  log.appendChild(pending);
+
+  const provider = $('provider').value;
+  const bubble = addMsg(
+    `<span class="sys">${provider === 'puter' ? 'Puter · ' + esc(currentModel()) : 'Aether server'} กำลังคิด...</span>`,
+    'ai'
+  );
+
   try {
-    const res = await fetch('/api/v1/chat/conversation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, session_id: 'dashboard' })
-    });
-    const data = await res.json();
-    pending.remove();
-    const reply = data.content || data.detail || JSON.stringify(data);
-    log.insertAdjacentHTML('beforeend', `<div class="msg ai">${String(reply).replace(/[<>]/g, '')}</div>`);
+    const out = provider === 'puter'
+      ? await chatViaPuter(text, bubble)
+      : await chatViaServer(text, bubble);
+
+    if ($('saveMemory').checked && out) {
+      await saveToMemory('user', text);
+      await saveToMemory('assistant', out);
+      bubble.insertAdjacentHTML('beforeend', '<div class="sys" style="margin-top:6px">บันทึกลงความจำ Aether แล้ว</div>');
+    }
   } catch (e) {
-    pending.textContent = 'ผิดพลาด: ' + e;
+    bubble.className = 'msg err';
+    bubble.textContent = 'ผิดพลาด: ' + e.message;
+    if (/allowance|credit|insufficient|402/i.test(e.message)) {
+      bubble.insertAdjacentHTML('beforeend',
+        '<div class="sys" style="margin-top:6px">โควต้าบัญชี Puter หมด — ไปที่ puter.com เพื่อเติม หรือเปลี่ยนโมเดลที่ถูกกว่า (เช่น ...nano)</div>');
+    }
   } finally {
     $('send').disabled = false;
-    log.scrollTop = log.scrollHeight;
   }
 });
 
-refresh();
-setInterval(refresh, 20000);
+refreshStatus();
+refreshPuter();
+setInterval(refreshStatus, 20000);
 </script>
 </body>
 </html>
